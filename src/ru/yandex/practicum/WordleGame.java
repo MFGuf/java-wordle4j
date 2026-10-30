@@ -1,5 +1,8 @@
 package ru.yandex.practicum;
 
+import java.io.IOException;
+import java.util.Random;
+
 /*
 в этом классе хранится словарь и состояние игры
     текущий шаг
@@ -19,5 +22,10 @@ public class WordleGame {
     private int steps;
 
     private WordleDictionary dictionary;
+    Random random = new Random();
 
+    public WordleGame() throws IOException {
+        this.dictionary = WordleDictionaryLoader.makeWordleDictionary();
+        this.answer = dictionary.getWords().get(random.nextInt(0,100));
+    }
 }

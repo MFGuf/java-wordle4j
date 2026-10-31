@@ -1,7 +1,7 @@
 package ru.yandex.practicum;
 import java.util.List;
 
-import Exceptions.WordNotFoundInDictionary;
+import exceptions.WordNotFoundInDictionary;
 
 public class WordleDictionary {
     private List<String> words;

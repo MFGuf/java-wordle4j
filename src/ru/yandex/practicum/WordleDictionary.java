@@ -6,10 +6,11 @@ import exceptions.WordNotFoundInDictionary;
 public class WordleDictionary {
     private List<String> words;
 
-    public void setWords(List<String> words) { // Для тестов
+    public WordleDictionary(List<String> words) {
         this.words = words;
     }
-    public WordleDictionary(List<String> words) {
+
+    public void setWords(List<String> words) { // Для тестов
         this.words = words;
     }
 

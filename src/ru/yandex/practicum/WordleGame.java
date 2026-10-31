@@ -22,8 +22,7 @@ public class WordleGame {
 
     private final PrintWriter gameLog;
     private final PrintWriter errorLog;
-
-    // Единственный конструктор для обычной игры: сам берёт случайное слово
+    
     public WordleGame(WordleDictionary dict, PrintWriter gameLog, PrintWriter errorLog) throws IOException {
         this.dictionary = dict;
         this.gameLog = gameLog;

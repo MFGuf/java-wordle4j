@@ -26,7 +26,7 @@ public class WordleDictionary {
 
     public static String equalsChar(String word, String answer) {
             char[] result = new char[5];
-            char[] available = answer.toCharArray();
+            char[] available = answer.toLowerCase().toCharArray();
 
             for (int i = 0; i < 5; i++) {
                 if (word.charAt(i) == available[i]) {
@@ -59,6 +59,10 @@ public class WordleDictionary {
                 }
             }
 
-            return new String(result);
+            if (new String(result).equals("+++++")) {
+                return "Поздравляю, вы угадали слово";
+            } else {
+                return new String(result);
+            }
     }
 }

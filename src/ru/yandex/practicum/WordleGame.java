@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import Exceptions.WordNotFoundInDictionary;
 
 /*
@@ -22,45 +24,100 @@ public class WordleGame {
 
     private final String answer;
 
-    private static int steps = 0;
+    private int steps;
 
-    private final WordleDictionary dictionary;
+    private WordleDictionary dictionary;
 
     private static final int MAX_ATTEMPTS = 6;
+
+    private List<String> historySteps;
+
+    private List<String> historyHints;
 
     Random random = new Random();
 
     public WordleGame() throws IOException {
         this.dictionary = WordleDictionaryLoader.makeWordleDictionary();
-        this.answer = dictionary.getWords().get(random.nextInt(0, dictionary.getWords().size()));
+        this.answer = dictionary.getWords().get(random.nextInt(0, dictionary.getWords().size())).toLowerCase();
+        steps = 0;
+        historyHints = new ArrayList<>();
+        historySteps = new ArrayList<>();
     }
 
     private String checkGuess(String word) {
         String hintString = null;
         try {
-            if (overGame()) {
+            if (!overGame()) {
                 dictionary.equalsWords(word);
                 hintString = dictionary.equalsChar(word, answer);
+                historySteps.add(word);
+                steps++;
             } else {
                 System.out.println("Попытки закончились, правильный ответ: " + answer);
             }
         } catch (WordNotFoundInDictionary ex) {
 
         } finally {
-            steps += 1;
             return hintString;
         }
     }
 
-    private static boolean overGame() {
-        if (MAX_ATTEMPTS > steps) {
+    private boolean overGame() {
+        if (MAX_ATTEMPTS <= steps) {
             return true;
         } else {
             return false;
         }
     }
 
-    private static String giveHint() {
+    private String giveHint() {
+        List<String> allWords = dictionary.getWords();
+        List<String> candidates = new ArrayList<>();
 
+        // Множество букв, которые ТОЧНО есть в загаданном слове (были G или M хотя бы раз)
+        Set<Character> mustHave = new HashSet<>();
+
+        for (int i = 0; i < historyHints.size(); i++) {
+            String hint = historyHints.get(i);
+            String word = historySteps.get(i).toLowerCase();
+
+            for (int j = 0; j < 5; j++) {
+                char h = hint.charAt(j);
+                if (h == '+' || h == '^') {
+                    mustHave.add(word.charAt(j));
+                }
+            }
+        }
+
+        // Перебираем все слова и фильтруем
+        for (String candidate : allWords) {
+            String lower = candidate.toLowerCase();
+
+            // Требование 1: не должно быть в истории ввода
+            if (historySteps.contains(lower)) {
+                continue;
+            }
+
+            // Требование 2: все известные буквы должны присутствовать в слове
+            boolean hasAllMust = true;
+            for (char c : mustHave) {
+                if (lower.indexOf(c) == -1) {
+                    hasAllMust = false;
+                    break;
+                }
+            }
+            if (!hasAllMust) {
+                continue;
+            }
+
+            candidates.add(lower);
+        }
+
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        Random random = new Random();
+        return candidates.get(random.nextInt(candidates.size()));
     }
 }

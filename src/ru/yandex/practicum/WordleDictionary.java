@@ -25,40 +25,40 @@ public class WordleDictionary {
     }
 
     public static String equalsChar(String word, String answer) {
-        char[] result = new char[5];
-        char[] available = answer.toCharArray();
+            char[] result = new char[5];
+            char[] available = answer.toCharArray();
 
-        for (int i = 0; i < 5; i++) {
-            if (word.charAt(i) == available[i]) {
-                result[i] = '+';
-                available[i] = 0;
-            } else {
-                result[i] = 0;
-            }
-        }
-
-        for (int i = 0; i < 5; i++) {
-            if (result[i] != 0) {
-                continue;
-            }
-
-            char c = word.charAt(i);
-            boolean found = false;
-
-            for (int j = 0; j < 5; j++) {
-                if (available[j] == c) {
-                    result[i] = '^';
-                    available[j] = 0;
-                    found = true;
-                    break;
+            for (int i = 0; i < 5; i++) {
+                if (word.charAt(i) == available[i]) {
+                    result[i] = '+';
+                    available[i] = 0;
+                } else {
+                    result[i] = 0;
                 }
             }
 
-            if (!found) {
-                result[i] = '-';
-            }
-        }
+            for (int i = 0; i < 5; i++) {
+                if (result[i] != 0) {
+                    continue;
+                }
 
-        return new String(result);
+                char c = word.charAt(i);
+                boolean found = false;
+
+                for (int j = 0; j < 5; j++) {
+                    if (available[j] == c) {
+                        result[i] = '^';
+                        available[j] = 0;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    result[i] = '-';
+                }
+            }
+
+            return new String(result);
     }
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum;
 
 import exceptions.WordNotFoundInDictionary;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,10 +20,9 @@ public class WordleGame {
     private final List<String> historySteps;
     private final List<String> historyHints;
     private final Random random;
-
     private final PrintWriter gameLog;
     private final PrintWriter errorLog;
-    
+
     public WordleGame(WordleDictionary dict, PrintWriter gameLog, PrintWriter errorLog) throws IOException {
         this.dictionary = dict;
         this.gameLog = gameLog;

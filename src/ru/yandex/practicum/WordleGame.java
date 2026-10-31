@@ -41,7 +41,7 @@ public class WordleGame {
         this.steps = 0;
         this.historySteps = new ArrayList<>();
         this.historyHints = new ArrayList<>();
-        this.random = new Random(42); // фиксированный seed для стабильности
+        this.random = new Random();
 
         logInfo("Game initialized. Answer word selected: " + answer);
     }
@@ -81,6 +81,7 @@ public class WordleGame {
         historyHints.add(hintString);
 
         logInfo("checkGuess: valid guess. word=" + word + ", hint=" + hintString);
+        steps++;
         return hintString;
     }
 

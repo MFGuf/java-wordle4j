@@ -14,7 +14,6 @@ class WordleTest {
 
     private WordleDictionary dict;
 
-    // Храним StringWriter отдельно — это критично для правильного чтения логов
     private StringWriter gameLogWriter;
     private StringWriter errorLogWriter;
 
@@ -40,7 +39,6 @@ class WordleTest {
         game = new WordleGame(dict, gameLog, errorLog);
     }
 
-    // Тест 1: игра стартует корректно
     @Test
     void testInitialization() {
         assertNotNull(game.getAnswer());
@@ -49,7 +47,6 @@ class WordleTest {
         assertFalse(game.isWon());
     }
 
-    // Тест 2: валидное слово из словаря обрабатывается без ошибок
     @Test
     void testValidGuessFromDict() {
         String firstWord = dict.getWords().get(0).toUpperCase();
@@ -59,30 +56,25 @@ class WordleTest {
         assertEquals(5, hint.length());
     }
 
-    // Тест 3: слишком короткое слово возвращает null
     @Test
     void testInvalidLength() {
         String result = game.checkGuess("СЛО");
         assertNull(result);
     }
 
-    // Тест 4: латиница вместо кириллицы возвращает null
     @Test
     void testInvalidCharacters() {
         String result = game.checkGuess("SLOVO");
         assertNull(result);
     }
 
-    // Тест 5: слово, которого нет в словаре, возвращает null
     @Test
     void testWordNotFound() {
-        // Подбираем заведомо несуществующее слово из 5 русских букв
         String rareWord = "КЫРЛЫ";
         String res = game.checkGuess(rareWord);
         assertNull(res);
     }
 
-    // Тест 6: подсказка всегда возвращает слово из 5 букв
     @Test
     void testGiveHint() {
         String suggestion = game.giveHint();
@@ -90,7 +82,6 @@ class WordleTest {
         assertEquals(5, suggestion.length());
     }
 
-    // Тест 7: после 3 попыток игра ещё не закончена
     @Test
     void testAttemptsCounting() {
         for (int i = 0; i < 3; i++) {
@@ -100,7 +91,6 @@ class WordleTest {
         assertFalse(game.isFinished(), "После 3 попыток игра не должна быть завершена");
     }
 
-    // Тест 8: в логах есть запись с уровнем (INFO/DEBUG/WARN/ERROR)
     @Test
     void testLogging() {
         String validWord = dict.getWords().get(0).toUpperCase();

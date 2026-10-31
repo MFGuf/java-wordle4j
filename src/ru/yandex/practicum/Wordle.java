@@ -43,6 +43,7 @@ public class Wordle {
                         String suggestion = game.giveHint();
                         if (suggestion != null) {
                             System.out.println("Подсказка: " + suggestion);
+                            System.out.println(game.checkGuess(suggestion));
                             gameLog.printf("HINT_RESULT | suggested=%s%n", suggestion);
                         } else {
                             System.out.println("Нет подходящих слов для подсказки.");

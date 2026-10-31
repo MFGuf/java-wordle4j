@@ -1,6 +1,7 @@
 package ru.yandex.practicum;
 import java.util.List;
-import Exeptions.WordNotFoundInDictionary;
+
+import Exceptions.WordNotFoundInDictionary;
 
 /*
 этот класс содержит в себе список слов List<String>
@@ -18,22 +19,46 @@ public class WordleDictionary {
     }
 
     public void equalsWords(String word) throws WordNotFoundInDictionary {
-        if (!words.contains(word)) {
+        if (!words.contains(word.toLowerCase())) {
             throw new WordNotFoundInDictionary("Слово не найдено в словаре");
         }
     }
 
-    public String equalsChar(String word, String answer) {
-        String equalsString = "";
+    public static String equalsChar(String word, String answer) {
+        char[] result = new char[5];
+        char[] available = answer.toCharArray();
+
         for (int i = 0; i < 5; i++) {
-            if (word.charAt(i) == answer.charAt(i)) {
-                equalsString += "+";
-            } else if (answer.indexOf(word.charAt(i)) != -1) {
-                equalsString += "^";
+            if (word.charAt(i) == available[i]) {
+                result[i] = '+';
+                available[i] = 0;
             } else {
-                equalsString += "-";
+                result[i] = 0;
             }
         }
-        return equalsString;
+
+        for (int i = 0; i < 5; i++) {
+            if (result[i] != 0) {
+                continue;
+            }
+
+            char c = word.charAt(i);
+            boolean found = false;
+
+            for (int j = 0; j < 5; j++) {
+                if (available[j] == c) {
+                    result[i] = '^';
+                    available[j] = 0;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                result[i] = '-';
+            }
+        }
+
+        return new String(result);
     }
 }

@@ -1,4 +1,6 @@
 package ru.yandex.practicum;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 в главном классе нам нужно:
@@ -12,7 +14,7 @@ package ru.yandex.practicum;
 public class Wordle {
 
     public static void main(String[] args) {
-
+        
     }
 
 }

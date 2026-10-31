@@ -17,7 +17,7 @@ import java.util.Random;
  */
 public class WordleGame {
 
-    private String answer;
+    private final String answer;
 
     private int steps;
 
@@ -26,6 +26,6 @@ public class WordleGame {
 
     public WordleGame() throws IOException {
         this.dictionary = WordleDictionaryLoader.makeWordleDictionary();
-        this.answer = dictionary.getWords().get(random.nextInt(0,100));
+        this.answer = dictionary.getWords().get(random.nextInt(0, dictionary.getWords().size()));
     }
 }

@@ -1,4 +1,4 @@
-package Exeptions;
+package Exceptions;
 
 public class WordNotFoundInDictionary extends Exception {
     public WordNotFoundInDictionary(String message) {

@@ -47,19 +47,19 @@ public class WordleGame {
     private String checkGuess(String word) {
         String hintString = null;
         try {
-            if (!overGame()) {
-                dictionary.equalsWords(word);
-                hintString = dictionary.equalsChar(word, answer);
-                historySteps.add(word);
-                steps++;
-            } else {
-                System.out.println("Попытки закончились, правильный ответ: " + answer);
-            }
+            dictionary.equalsWords(word);
         } catch (WordNotFoundInDictionary ex) {
-
-        } finally {
-            return hintString;
+            return null;
         }
+        if (!overGame()) {
+            hintString = dictionary.equalsChar(word, answer);
+            historySteps.add(word);
+            historyHints.add(hintString);
+            steps++;
+        } else {
+            return "Попытки закончились, правильный ответ: " + answer;
+        }
+        return hintString;
     }
 
     private boolean overGame() {
@@ -74,7 +74,6 @@ public class WordleGame {
         List<String> allWords = dictionary.getWords();
         List<String> candidates = new ArrayList<>();
 
-        // Множество букв, которые ТОЧНО есть в загаданном слове (были G или M хотя бы раз)
         Set<Character> mustHave = new HashSet<>();
 
         for (int i = 0; i < historyHints.size(); i++) {
@@ -89,16 +88,13 @@ public class WordleGame {
             }
         }
 
-        // Перебираем все слова и фильтруем
         for (String candidate : allWords) {
             String lower = candidate.toLowerCase();
 
-            // Требование 1: не должно быть в истории ввода
             if (historySteps.contains(lower)) {
                 continue;
             }
 
-            // Требование 2: все известные буквы должны присутствовать в слове
             boolean hasAllMust = true;
             for (char c : mustHave) {
                 if (lower.indexOf(c) == -1) {

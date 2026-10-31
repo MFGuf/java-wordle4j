@@ -1,80 +1,103 @@
 package ru.yandex.practicum;
 
-import java.io.IOException;
-import java.util.Random;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 import Exceptions.WordNotFoundInDictionary;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
-/*
-в этом классе хранится словарь и состояние игры
-    текущий шаг
-    всё что пользователь вводил
-    правильный ответ
-
-в этом классе нужны методы, которые
-    проанализируют совпадение слова с ответом
-    предложат слово-подсказку с учётом всего, что вводил пользователь ранее
-
-не забудьте про специальные типы исключений для игровых и неигровых ошибок
- */
 public class WordleGame {
 
     private final String answer;
-
     private int steps;
-
-    private WordleDictionary dictionary;
-
+    private final WordleDictionary dictionary;
     private static final int MAX_ATTEMPTS = 6;
 
-    private List<String> historySteps;
+    private final List<String> historySteps;
+    private final List<String> historyHints;
+    private final Random random;
 
-    private List<String> historyHints;
+    private final PrintWriter gameLog;
+    private final PrintWriter errorLog;
 
-    Random random = new Random();
+    // Единственный конструктор для обычной игры: сам берёт случайное слово
+    public WordleGame(WordleDictionary dict, PrintWriter gameLog, PrintWriter errorLog) throws IOException {
+        this.dictionary = dict;
+        this.gameLog = gameLog;
+        this.errorLog = errorLog;
 
-    public WordleGame() throws IOException {
-        this.dictionary = WordleDictionaryLoader.makeWordleDictionary();
-        this.answer = dictionary.getWords().get(random.nextInt(0, dictionary.getWords().size())).toLowerCase();
-        steps = 0;
-        historyHints = new ArrayList<>();
-        historySteps = new ArrayList<>();
+        List<String> words = this.dictionary.getWords();
+        if (words.isEmpty()) {
+            throw new IOException("Словарь пуст — невозможно начать игру");
+        }
+
+        // Выбираем случайное слово как ответ
+        String randomWord = words.get(new Random().nextInt(words.size()));
+        this.answer = randomWord.toLowerCase();
+
+        this.steps = 0;
+        this.historySteps = new ArrayList<>();
+        this.historyHints = new ArrayList<>();
+        this.random = new Random(42); // фиксированный seed для стабильности
+
+        logInfo("Game initialized. Answer word selected: " + answer);
     }
 
-    private String checkGuess(String word) {
-        String hintString = null;
+    public String getAnswer() {
+        return answer;
+    }
+
+    // Защита от действий после завершения игры
+    private void ensureNotFinished() {
+        if (isFinished()) {
+            String msg = "Попытка действия после завершения игры";
+            logError(msg);
+            throw new IllegalStateException(msg);
+        }
+    }
+
+    public String checkGuess(String word) {
+        ensureNotFinished();
+
+        logDebug("checkGuess called with word: " + word);
+
+        if (word == null || word.isEmpty() || word.length() != 5 || !word.matches("[А-Яа-яёЁ]{5}")) {
+            logWarn("checkGuess: invalid input format. word=\"" + word + "\"");
+            return null;
+        }
+
         try {
             dictionary.equalsWords(word);
         } catch (WordNotFoundInDictionary ex) {
+            logWarn("checkGuess: word not in dictionary. word=\"" + word + "\", reason=" + ex.getMessage());
             return null;
         }
-        if (!overGame()) {
-            hintString = dictionary.equalsChar(word, answer);
-            historySteps.add(word);
-            historyHints.add(hintString);
-            steps++;
-        } else {
-            return "Попытки закончились, правильный ответ: " + answer;
-        }
+
+        String hintString = dictionary.equalsChar(word, answer);
+        historySteps.add(word.toLowerCase());
+        historyHints.add(hintString);
+
+        logInfo("checkGuess: valid guess. word=" + word + ", hint=" + hintString);
         return hintString;
     }
 
     private boolean overGame() {
-        if (MAX_ATTEMPTS <= steps) {
-            return true;
-        } else {
-            return false;
-        }
+        return MAX_ATTEMPTS <= steps;
     }
 
-    private String giveHint() {
+    public String giveHint() {
+        ensureNotFinished();
+
+        logDebug("giveHint called. steps=" + steps);
+
         List<String> allWords = dictionary.getWords();
         List<String> candidates = new ArrayList<>();
 
-        Set<Character> mustHave = new HashSet<>();
+        Set<Character> mustHaveAnywhere = new HashSet<>();
+        Character[] fixedPosition = new Character[5];
 
         for (int i = 0; i < historyHints.size(); i++) {
             String hint = historyHints.get(i);
@@ -82,8 +105,10 @@ public class WordleGame {
 
             for (int j = 0; j < 5; j++) {
                 char h = hint.charAt(j);
-                if (h == '+' || h == '^') {
-                    mustHave.add(word.charAt(j));
+                if (h == '+') {
+                    fixedPosition[j] = word.charAt(j);
+                } else if (h == '^') {
+                    mustHaveAnywhere.add(word.charAt(j));
                 }
             }
         }
@@ -95,8 +120,19 @@ public class WordleGame {
                 continue;
             }
 
+            boolean positionsMatch = true;
+            for (int i = 0; i < 5; i++) {
+                if (fixedPosition[i] != null && lower.charAt(i) != fixedPosition[i]) {
+                    positionsMatch = false;
+                    break;
+                }
+            }
+            if (!positionsMatch) {
+                continue;
+            }
+
             boolean hasAllMust = true;
-            for (char c : mustHave) {
+            for (char c : mustHaveAnywhere) {
                 if (lower.indexOf(c) == -1) {
                     hasAllMust = false;
                     break;
@@ -110,10 +146,43 @@ public class WordleGame {
         }
 
         if (candidates.isEmpty()) {
+            logInfo("giveHint: no candidates found");
             return null;
         }
 
-        Random random = new Random();
-        return candidates.get(random.nextInt(candidates.size()));
+        String suggestion = candidates.get(random.nextInt(candidates.size()));
+        logInfo("giveHint: returned suggestion=" + suggestion);
+        return suggestion;
+    }
+
+    public boolean isFinished() {
+        if (historyHints.isEmpty()) {
+            return false;
+        }
+        return overGame() || historyHints.get(historyHints.size() - 1).equals("+++++");
+    }
+
+    public boolean isWon() {
+        if (historyHints.isEmpty()) {
+            return false;
+        }
+        return historyHints.get(historyHints.size() - 1).equals("+++++");
+    }
+
+    // Логирование
+    private void logInfo(String message) {
+        if (gameLog != null) gameLog.println("INFO | " + message);
+    }
+
+    private void logDebug(String message) {
+        if (gameLog != null) gameLog.println("DEBUG | " + message);
+    }
+
+    private void logWarn(String message) {
+        if (gameLog != null) gameLog.println("WARN | " + message);
+    }
+
+    private void logError(String message) {
+        if (errorLog != null) errorLog.println("ERROR | " + message);
     }
 }

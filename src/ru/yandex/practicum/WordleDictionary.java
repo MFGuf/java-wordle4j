@@ -3,13 +3,12 @@ import java.util.List;
 
 import Exceptions.WordNotFoundInDictionary;
 
-/*
-этот класс содержит в себе список слов List<String>
-    его методы похожи на методы списка, но учитывают особенности игры
-    также этот класс может содержать рутинные функции по сравнению слов, букв и т.д.
- */
 public class WordleDictionary {
-    private final List<String> words;
+    private List<String> words;
+
+    public void setWords(List<String> words) { // Для тестов
+        this.words = words;
+    }
     public WordleDictionary(List<String> words) {
         this.words = words;
     }
@@ -20,7 +19,7 @@ public class WordleDictionary {
 
     public void equalsWords(String word) throws WordNotFoundInDictionary {
         if (!words.contains(word.toLowerCase())) {
-            throw new WordNotFoundInDictionary("Слово не найдено в словаре");
+            throw new WordNotFoundInDictionary("Слово '" + word + "' не найдено в словаре");
         }
     }
 
@@ -59,10 +58,6 @@ public class WordleDictionary {
                 }
             }
 
-            if (new String(result).equals("+++++")) {
-                return "Поздравляю, вы угадали слово";
-            } else {
-                return new String(result);
-            }
+            return new String(result);
     }
 }

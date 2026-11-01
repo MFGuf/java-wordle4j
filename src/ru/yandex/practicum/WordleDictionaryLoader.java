@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class WordleDictionaryLoader {
     public static WordleDictionary makeWordleDictionary() throws IOException {
-        List<String> wordleDictionary = new LinkedList<>();
+        List<String> wordleDictionary = new ArrayList<>();
         File filename = new File("words_ru.txt");
         try (BufferedReader br = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_8))) {
             while (br.ready()) {

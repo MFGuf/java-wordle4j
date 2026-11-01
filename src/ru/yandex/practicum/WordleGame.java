@@ -1,7 +1,6 @@
 package ru.yandex.practicum;
 
 import exceptions.WordNotFoundInDictionary;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,37 +18,53 @@ public class WordleGame {
 
     private final List<String> historySteps;
     private final List<String> historyHints;
-    private final Random random;
     private final PrintWriter gameLog;
     private final PrintWriter errorLog;
+    private final Random random;
 
-    public WordleGame(WordleDictionary dict, PrintWriter gameLog, PrintWriter errorLog) throws IOException {
-        this.dictionary = dict;
+
+    public WordleGame(
+            WordleDictionary dictionary,
+            String answer,
+            PrintWriter gameLog,
+            PrintWriter errorLog
+    ) {
+        this.dictionary = dictionary;
+        this.answer = answer;
         this.gameLog = gameLog;
         this.errorLog = errorLog;
-
-        List<String> words = this.dictionary.getWords();
-        if (words.isEmpty()) {
-            throw new IOException("Словарь пуст — невозможно начать игру");
-        }
-
-        // Выбираем случайное слово как ответ
-        String randomWord = words.get(new Random().nextInt(words.size()));
-        this.answer = randomWord.toLowerCase();
-
+        this.random = new Random(); // обязательно инициализируем
         this.steps = 0;
         this.historySteps = new ArrayList<>();
         this.historyHints = new ArrayList<>();
-        this.random = new Random();
 
         logInfo("Game initialized. Answer word selected: " + answer);
+    }
+
+    // Конструктор для тестов с фиксированным сидом (опционально)
+    public WordleGame(
+            WordleDictionary dictionary,
+            String answer,
+            PrintWriter gameLog,
+            PrintWriter errorLog,
+            long seed
+    ) {
+        this.dictionary = dictionary;
+        this.answer = answer;
+        this.gameLog = gameLog;
+        this.errorLog = errorLog;
+        this.random = new Random(seed);
+        this.steps = 0;
+        this.historySteps = new ArrayList<>();
+        this.historyHints = new ArrayList<>();
+
+        logInfo("Game initialized with seed: " + seed + ". Answer word: " + answer);
     }
 
     public String getAnswer() {
         return answer;
     }
 
-    // Защита от действий после завершения игры
     private void ensureNotFinished() {
         if (isFinished()) {
             String msg = "Попытка действия после завершения игры";
@@ -169,20 +184,27 @@ public class WordleGame {
         return historyHints.get(historyHints.size() - 1).equals("+++++");
     }
 
-    // Логирование
     private void logInfo(String message) {
-        if (gameLog != null) gameLog.println("INFO | " + message);
+        if (gameLog != null) {
+            gameLog.println("INFO | " + message);
+        }
     }
 
     private void logDebug(String message) {
-        if (gameLog != null) gameLog.println("DEBUG | " + message);
+        if (gameLog != null) {
+            gameLog.println("DEBUG | " + message);
+        }
     }
 
     private void logWarn(String message) {
-        if (gameLog != null) gameLog.println("WARN | " + message);
+        if (gameLog != null) {
+            gameLog.println("WARN | " + message);
+        }
     }
 
     private void logError(String message) {
-        if (errorLog != null) errorLog.println("ERROR | " + message);
+        if (errorLog != null) {
+            errorLog.println("ERROR | " + message);
+        }
     }
 }

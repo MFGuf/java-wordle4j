@@ -1,7 +1,6 @@
 package ru.yandex.practicum;
 
 import exceptions.WordNotFoundInDictionary;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
